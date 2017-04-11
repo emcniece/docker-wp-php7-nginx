@@ -18,35 +18,10 @@ Based on [docker-wordpress-nginx](https://github.com/eugeneware/docker-wordpress
 - Backups (Amazon S3)
 
 
-
-
-
-
 TODO:
 
-- build image for the first time
 - Ensure Supervisord starts fail2ban properly
-- Ensure wp-cli installs properly
-- Add plugins during image creation: nginx helper, redis
-- Add config adjustments for php-fpm and redis
-- add nginx adjustments for php-fpm and redis
-- add wp-config adjustments for php-fpm and redis
-- add conditional nginx config adjustments for SSL
 - add S3 cli & backups
-- 
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 ## Installation
@@ -55,15 +30,15 @@ The easiest way to get this docker image installed is to pull the latest version
 from the Docker registry:
 
 ```bash
-$ docker pull eugeneware/docker-wordpress-nginx
+$ docker pull emcniece/wp-php7-nginx
 ```
 
 If you'd like to build the image yourself then:
 
 ```bash
-$ git clone https://github.com/eugeneware/docker-wordpress-nginx.git
-$ cd docker-wordpress-nginx
-$ sudo docker build -t="eugeneware/docker-wordpress-nginx" .
+$ git clone https://github.com/emcniece/docker-wp-php7-nginx.git
+$ cd docker-wp-php7-nginx
+$ make image
 ```
 
 ## Usage
@@ -71,7 +46,7 @@ $ sudo docker build -t="eugeneware/docker-wordpress-nginx" .
 To spawn a new instance of wordpress on port 80.  The -p 80:80 maps the internal docker port 80 to the outside port 80 of the host machine.
 
 ```bash
-$ sudo docker run -p 80:80 --name docker-wordpress-nginx -d eugeneware/docker-wordpress-nginx
+$ sudo docker run -p 80:80 --name docker-wordpress-nginx -d emcniece/wp-php7-nginx
 ```
 
 Start your newly created docker.
