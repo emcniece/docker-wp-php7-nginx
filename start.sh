@@ -31,7 +31,14 @@ if [ ! -f /var/www/wordpress/wp-config.php ]; then
   echo "Downloading WordPress..."
   cd /var/www/wordpress
   wp core download --allow-root --path=/var/www/wordpress
-  wp core config --dbname=$WORDPRESS_DB --dbuser=$WORDPRESS_DB --dbpass=$WORDPRESS_PASS --allow-root
+
+  echo "Editing wp-config..."
+  cp wp-config-sample.php wp-config.php
+  sed -ie "s/database_name_here/$WORDPRESS_DB/g" wp-config.php
+  sed -ie "s/username_here/$WORDPRESS_DB/g" wp-config.php
+  sed -ie "s/password_here/$WORDPRESS_PASS/g" wp-config.php
+  sed -ie "s/put your unique phrase here/$WORDPRESS_SALT/g" wp-config.php
+  echo "done config"
 
   echo "Installing plugins..."
   cd /var/www/wordpress/wp-content/plugins
