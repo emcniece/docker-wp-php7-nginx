@@ -4,29 +4,7 @@ if [ ! -f /var/www/wordpress/wp-config.php ]; then
   echo $TIMEZONE > /etc/timezone
   dpkg-reconfigure -f noninteractive tzdata
 
-  #mysql has to be started this way as it doesn't work to call from /etc/init.d
-  /usr/bin/mysqld_safe &
-  sleep 10s
-
-  # Here we generate random passwords (thank you pwgen!). The first two are for mysql users, the last batch for random keys in wp-config.php
-  WORDPRESS_DB=$([ "$WORDPRESS_DB" ] && echo $WORDPRESS_DB || echo "wordpress")
-  MYSQL_PASS=$([ "$MYSQL_PASS" ] && echo $MYSQL_PASS || echo $(pwgen -c -n -1 12))
-  WORDPRESS_PASS=$([ "$WORDPRESS_PASS" ] && echo $WORDPRESS_PASS || echo $(pwgen -c -n -1 12))
   REDIS_PASS=$([ "$REDIS_PASS" ] && echo $REDIS_PASS || echo $(pwgen -c -n -1 12))
-
-  #This is so the passwords show up in logs.
-  echo mysql root password: $MYSQL_PASS
-  echo wordpress database: $WORDPRESS_DB
-  echo wordpress password: $WORDPRESS_PASS
-
-  echo mysql root password: $MYSQL_PASS >> /dbcreds.txt
-  echo wordpress db user: $WORDPRESS_DB >> /dbcreds.txt
-  echo wordpress db pass: $WORDPRESS_PASS >> /dbcreds.txt
-
-  # MySQL Config
-  mysqladmin -u root password $MYSQL_PASS
-  mysql -uroot -p$MYSQL_PASS -e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY '$MYSQL_PASS' WITH GRANT OPTION; FLUSH PRIVILEGES;"
-  mysql -uroot -p$MYSQL_PASS -e "CREATE DATABASE wordpress; GRANT ALL PRIVILEGES ON wordpress.* TO 'wordpress'@'localhost' IDENTIFIED BY '$WORDPRESS_PASS'; FLUSH PRIVILEGES;"
 
   echo "Downloading WordPress..."
   cd /var/www/wordpress
@@ -34,10 +12,18 @@ if [ ! -f /var/www/wordpress/wp-config.php ]; then
 
   echo "Editing wp-config..."
   cp wp-config-sample.php wp-config.php
-  sed -ie "s/database_name_here/$WORDPRESS_DB/g" wp-config.php
-  sed -ie "s/username_here/$WORDPRESS_DB/g" wp-config.php
-  sed -ie "s/password_here/$WORDPRESS_PASS/g" wp-config.php
-  sed -ie "s/put your unique phrase here/$WORDPRESS_SALT/g" wp-config.php
+  sed -e "s/database_name_here/$MYSQL_DATABASE/
+  s/localhost/$MYSQL_HOST/
+  s/username_here/$MYSQL_USER/
+  s/password_here/$MYSQL_PASSWORD/
+  /'AUTH_KEY'/s/put your unique phrase here/`pwgen -c -n -1 65`/
+  /'SECURE_AUTH_KEY'/s/put your unique phrase here/`pwgen -c -n -1 65`/
+  /'LOGGED_IN_KEY'/s/put your unique phrase here/`pwgen -c -n -1 65`/
+  /'NONCE_KEY'/s/put your unique phrase here/`pwgen -c -n -1 65`/
+  /'AUTH_SALT'/s/put your unique phrase here/`pwgen -c -n -1 65`/
+  /'SECURE_AUTH_SALT'/s/put your unique phrase here/`pwgen -c -n -1 65`/
+  /'LOGGED_IN_SALT'/s/put your unique phrase here/`pwgen -c -n -1 65`/
+  /'NONCE_SALT'/s/put your unique phrase here/`pwgen -c -n -1 65`/" /var/www/wordpress/wp-config-sample.php > /var/www/wordpress/wp-config.php
   echo "done config"
 
   echo "Installing plugins..."
@@ -46,7 +32,7 @@ if [ ! -f /var/www/wordpress/wp-config.php ]; then
   curl -O `curl -i -s https://wordpress.org/plugins/redis-cache/ | egrep -o "https://downloads.wordpress.org/plugin/[^\"]+"`
   curl -O `curl -i -s https://wordpress.org/plugins/mailgun/ | egrep -o "https://downloads.wordpress.org/plugin/[^\"]+"`
   curl -O `curl -i -s https://wordpress.org/plugins/wordpress-seo/ | egrep -o "https://downloads.wordpress.org/plugin/[^\"]+"`
-  unzip '*.zip'
+  unzip -q '*.zip'
   rm *.zip
   echo "done plugin install"
 
@@ -57,13 +43,8 @@ if [ ! -f /var/www/wordpress/wp-config.php ]; then
   echo -e "define('WP_REDIS_DATABASE', 1);\n$(cat wp-config.php)" > wp-config.php
   echo -e "<?php\ndefine('WP_REDIS_PASSWORD', '$REDIS_PASS');\n$(cat wp-config.php)" > wp-config.php
 
-  # Import steps!
-  # Import db
-  # Import files
+  # Import files eventually?
 
-  # Cleanup & supervisord prep
-  pidof /bin/sh /usr/bin/mysqld_safe | xargs kill -9
-  killall mysqld
   chown -R wordpress:wordpress /var/www/wordpress
 fi
 

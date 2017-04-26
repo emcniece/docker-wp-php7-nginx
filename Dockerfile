@@ -1,12 +1,8 @@
 FROM ubuntu:16.04
 MAINTAINER Eric McNiece <hello@emc2innovation.com>
 
-# private expose
-# EXPOSE 3306
 EXPOSE 80
 
-# volume for mysql database and wordpress install
-# VOLUME ["/var/lib/mysql"]
 VOLUME ["/var/www/wordpress", "/var/www/import"]
 
 # Let the conatiner know that there is no tty
@@ -25,10 +21,8 @@ RUN dpkg-divert --local --rename --add /sbin/initctl \
   git \
   unzip \
   redis-server \
-  nano \
   python-pip \
-  mysql-server \
-  mysql-client \
+#  mysql-client \
   php-memcache \
   php-apcu \
   php-redis \
@@ -59,17 +53,6 @@ RUN \
  && echo 'session.save_path = "tcp://127.0.0.1:6379"' >> /etc/php/7.0/mods-available/redis.ini \
  && echo 'maxmemory 64mb' >> /etc/redis/redis.conf && service redis-server restart \
 
-# Install Wordpress
-#WORKDIR /var/www/wordpress
-#RUN wp core download --allow-root
-#WORKDIR /var/www/wordpress/wp-content/plugins
-#RUN curl -O `curl -i -s https://wordpress.org/plugins/nginx-helper/ | egrep -o "https://downloads.wordpress.org/plugin/[^']+"` \
-# && curl -O `curl -i -s https://wordpress.org/plugins/redis-cache/ | egrep -o "https://downloads.wordpress.org/plugin/[^']+"` \
-# && curl -O `curl -i -s https://wordpress.org/plugins/mailgun/ | egrep -o "https://downloads.wordpress.org/plugin/[^']+"` \
-# && curl -O `curl -i -s https://wordpress.org/plugins/wordpress-seo/ | egrep -o "https://downloads.wordpress.org/plugin/[^']+"` \
-# && unzip '*.zip' \
-# && rm *.zip
-
 # Config files
 RUN mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.orig
 ADD ./nginx.conf /etc/nginx
@@ -84,9 +67,6 @@ RUN \
  && ln -sf /dev/stderr /var/log/nginx/error.log \
  && mkdir -p /var/www/cache \
  && mkdir -p /var/www/import \
- # MySQL
- && mkdir -p /var/run/mysqld \
- && chown -R mysql:mysql /var/run/mysqld \
  # PHP-FPM
  && rm /etc/php/7.0/fpm/pool.d/www.conf \
  && mkdir -p /run/php && touch /run/php/php7.0-fpm.sock \
