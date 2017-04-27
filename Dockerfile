@@ -22,7 +22,6 @@ RUN dpkg-divert --local --rename --add /sbin/initctl \
   unzip \
   redis-server \
   python-pip \
-#  mysql-client \
   php-memcache \
   php-apcu \
   php-redis \
@@ -55,10 +54,10 @@ RUN \
 
 # Config files
 RUN mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.orig
-ADD ./nginx.conf /etc/nginx
-ADD ./nginx-site.conf /etc/nginx/sites-available/default
-ADD ./wordpress-fpm.conf /etc/php/7.0/fpm/pool.d
-ADD ./supervisord.conf /etc/supervisord.conf
+ADD ./config/nginx.conf /etc/nginx
+ADD ./config/nginx-site.conf /etc/nginx/sites-available/default
+ADD ./config/wordpress-fpm.conf /etc/php/7.0/fpm/pool.d
+ADD ./config/supervisord.conf /etc/supervisord.conf
 ADD ./start.sh /start.sh
 
 RUN \

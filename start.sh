@@ -39,7 +39,7 @@ if [ ! -f /var/www/wordpress/wp-config.php ]; then
   # WP Environment Config
   cd /var/www/wordpress
   echo -e "define('DISABLE_WP_CRON', true);\n?>\n$(cat wp-config.php)" > wp-config.php
-  echo -e "define('RT_WP_NGINX_HELPER_CACHE_PATH', '/var/www/wordpress/cache/');\n$(cat wp-config.php)" > wp-config.php
+  echo -e "define('RT_WP_NGINX_HELPER_CACHE_PATH', '/var/www/cache/');\n$(cat wp-config.php)" > wp-config.php
   echo -e "define('WP_REDIS_DATABASE', 1);\n$(cat wp-config.php)" > wp-config.php
   echo -e "<?php\ndefine('WP_REDIS_PASSWORD', '$REDIS_PASS');\n$(cat wp-config.php)" > wp-config.php
 
@@ -50,3 +50,10 @@ fi
 
 # start all the services
 /usr/bin/supervisord -c /etc/supervisord.conf -n
+
+# Clean variables
+unset MYSQL_HOST
+unset MYSQL_USER
+unset MYSQL_DATABASE
+unset MYSQL_PASSWORD
+unset REDIS_PASS
