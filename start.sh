@@ -41,10 +41,13 @@ if [ ! -f /var/www/wordpress/wp-config.php ]; then
   echo -e "define('DISABLE_WP_CRON', true);\n?>\n$(cat wp-config.php)" > wp-config.php
   echo -e "define('RT_WP_NGINX_HELPER_CACHE_PATH', '/var/www/cache/');\n$(cat wp-config.php)" > wp-config.php
   echo -e "define('WP_REDIS_DATABASE', 1);\n$(cat wp-config.php)" > wp-config.php
-  echo -e "<?php\ndefine('WP_REDIS_PASSWORD', '$REDIS_PASS');\n$(cat wp-config.php)" > wp-config.php
+  echo -e "<?php define('WP_REDIS_PASSWORD', '$REDIS_PASS');\n$(cat wp-config.php)" > wp-config.php
+
+  if [ "$SSL_ENABLED" = "true" ]; then
+    echo -e "<?php if( !empty( \$_SERVER['HTTP_X_FORWARDED_HOST']) || !empty( \$_SERVER['HTTP_X_FORWARDED_FOR']) ){ \$_SERVER['HTTPS'] = 'on'; } ?>\n$(cat wp-config.php)" > wp-config.php
+  fi
 
   # Import files eventually?
-
   chown -R wordpress:wordpress /var/www/wordpress
 fi
 
