@@ -44,7 +44,12 @@ if [ ! -f /var/www/wordpress/wp-config.php ]; then
   echo -e "<?php define('WP_REDIS_PASSWORD', '$REDIS_PASS');\n$(cat wp-config.php)" > wp-config.php
 
   if [ "$SSL_ENABLED" = "true" ]; then
-    echo -e "<?php if( !empty( \$_SERVER['HTTP_X_FORWARDED_HOST']) || !empty( \$_SERVER['HTTP_X_FORWARDED_FOR']) ){ \$_SERVER['HTTPS'] = 'on'; } ?>\n$(cat wp-config.php)" > wp-config.php
+    echo -e "<?php
+      if( !empty( \$_SERVER['HTTP_X_FORWARDED_HOST']) || !empty( \$_SERVER['HTTP_X_FORWARDED_FOR']) ){
+        \$_SERVER['HTTPS'] = 'on';
+        \$_SERVER['SERVER_PORT'] = 443;
+      }
+    ?>\n$(cat wp-config.php)" > wp-config.php
   fi
 
   # Import files eventually?

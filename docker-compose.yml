@@ -5,9 +5,9 @@ services:
   wordpress:
     tty: true
     stdin_open: true
-    image: emcniece/wp-php7-nginx:0.0.8
+    image: emcniece/wp-php7-nginx:0.0.12
     #volumes:
-      #- /root/test-wp/wordpress:/var/www/wordpress
+    #  - /Users/emcniece/Code/docker/wp-php7-nginx/tmp/wordpress:/var/www/wordpress
     ports:
       - 8080:80
     links: [mysql]
@@ -16,12 +16,13 @@ services:
       MYSQL_USER: wordpress
       MYSQL_DATABASE: wordpress
       MYSQL_PASSWORD: wordpress
+      SSL_ENABLED: 'true'
 
   mysql:
-    image: mysql:5
-    #command: mysqld --innodb-buffer-pool-size=20M
+    image: mariadb
+    command: mysqld --innodb-buffer-pool-size=20M
     #volumes:
-      #- /root/test-wp/db:/var/lib/mysql:rw
+    #  - /Users/emcniece/Code/docker/wp-php7-nginx/tmp/db:/var/lib/mysql:rw
     environment:
       MYSQL_RANDOM_ROOT_PASSWORD: 'yes'
       MYSQL_USER: wordpress
