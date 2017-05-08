@@ -55,7 +55,7 @@ RUN \
 # Config files
 RUN mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.orig
 ADD ./config/nginx.conf /etc/nginx
-ADD ./config/nginx-site.conf /etc/nginx/sites-enabled/default
+ADD ./config/nginx-site.conf /etc/nginx/sites-available/default
 ADD ./config/wordpress-fpm.conf /etc/php/7.0/fpm/pool.d
 ADD ./config/supervisord.conf /etc/supervisord.conf
 ADD ./start.sh /start.sh
@@ -79,8 +79,6 @@ RUN \
  # Wordpress Initialization and Startup Script
  && chown -R wordpress:wordpress /var/www \
  && chmod 755 /start.sh
-
-VOLUME ["/etc/nginx/sites-volumed"]
 
 WORKDIR /var/www/wordpress
 CMD ["/bin/bash", "/start.sh"]
