@@ -25,6 +25,7 @@ RUN dpkg-divert --local --rename --add /sbin/initctl \
   php-memcache \
   php-apcu \
   php-redis \
+  mysql-client \
   nginx-custom \
   nginx-ee \
   php7.0-fpm \
@@ -32,6 +33,7 @@ RUN dpkg-divert --local --rename --add /sbin/initctl \
   php7.0-curl \
   php7.0-gd \
   php7.0-mcrypt \
+  php7.0-xml \
   php7.0-xmlrpc \
   php7.0-mbstring
 
@@ -58,6 +60,7 @@ ADD ./config/nginx.conf /etc/nginx
 ADD ./config/nginx-site.conf /etc/nginx/sites-available/default
 ADD ./config/wordpress-fpm.conf /etc/php/7.0/fpm/pool.d
 ADD ./config/supervisord.conf /etc/supervisord.conf
+ADD ./config/rsync-exclude.txt /rsync-exclude.txt
 ADD ./start.sh /start.sh
 
 RUN \
